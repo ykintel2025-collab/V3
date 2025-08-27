@@ -27,7 +27,6 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
-        /* Optimalisatie voor mobiel: producten staan altijd onder elkaar */
         #product-catalogus {
             display: flex;
             flex-direction: column;
@@ -46,10 +45,11 @@
 
         .product-item h3 {
             margin-top: 0;
+            font-size: 1.5em; /* Grotere titel */
         }
 
         .product-item img {
-            max-width: 100%;
+            max-width: 80%; /* Iets kleiner op mobiel */
             height: auto;
             display: block;
             margin: 0 auto 10px auto;
@@ -59,9 +59,9 @@
             font-weight: bold;
             color: #5cb85c;
             margin-top: 10px;
+            font-size: 1.2em; /* Grotere prijsweergave */
         }
         
-        /* Layout voor de hoeveelheid en knop */
         .product-actions {
             display: flex;
             align-items: center;
@@ -97,6 +97,26 @@
         #cart-items li {
             padding: 8px 0;
             border-bottom: 1px dashed #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Zorgt ervoor dat elementen naar de volgende regel gaan indien nodig */
+            font-size: 1.1em; /* Grotere tekst in de winkelwagen */
+        }
+
+        #cart-items li .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        #cart-items li .quantity-controls button {
+            background: #ddd;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
         #cart-items li:last-child {
@@ -108,6 +128,7 @@
             border-top: 1px solid #ccc;
             padding-top: 10px;
             text-align: right;
+            font-size: 1.1em; /* Grotere tekst voor totalen */
         }
         
         #cart-totals div {
@@ -150,6 +171,19 @@
             margin-top: 10px;
         }
 
+        #notification-message {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
         #confirmation-message {
             display: none;
             background-color: #dff0d8;
@@ -186,6 +220,8 @@
             
             <button id="show-cart-btn">Winkelwagen bekijken (0)</button>
         </section>
+        
+        <div id="notification-message"></div>
 
         <section id="confirmation-message">
             <h2>Bestelling verstuurd!</h2>
@@ -234,6 +270,7 @@
             const subtotalEl = document.getElementById("subtotal");
             const taxEl = document.getElementById("tax");
             const totalEl = document.getElementById("total");
+            const notificationEl = document.getElementById("notification-message");
 
             // Producten in de catalogus laden
             producten.forEach(product => {
@@ -275,9 +312,19 @@
                     } else {
                         cart.push({ ...product, quantity: quantity });
                     }
+                    showNotification(`${quantity}x ${product.naam} toegevoegd!`);
                     updateCartDisplay();
                 });
             });
+
+            // Toon melding bij toevoegen aan winkelwagen
+            function showNotification(message) {
+                notificationEl.textContent = message;
+                notificationEl.style.display = "block";
+                setTimeout(() => {
+                    notificationEl.style.display = "none";
+                }, 3000); // Verberg na 3 seconden
+            }
 
             // Winkelwagen bekijken knop
             showCartBtn.addEventListener("click", () => {
@@ -294,10 +341,17 @@
                     subtotal += item.prijs * item.quantity;
 
                     const listItem = document.createElement("li");
-                    listItem.textContent = `${item.quantity} x ${item.naam} (€${(item.prijs * item.quantity).toFixed(2)})`;
+                    listItem.innerHTML = `
+                        <span>${item.quantity} x ${item.naam} (€${(item.prijs * item.quantity).toFixed(2)})</span>
+                        <div class="quantity-controls">
+                            <button class="decrease-btn" data-sku="${item.sku}">-</button>
+                            <button class="increase-btn" data-sku="${item.sku}">+</button>
+                            <button class="remove-btn" data-sku="${item.sku}">Verwijder</button>
+                        </div>
+                    `;
                     cartItemsContainer.appendChild(listItem);
                 });
-
+                
                 const tax = subtotal * BTW_TARIEF;
                 const total = subtotal + tax;
 
@@ -307,7 +361,31 @@
                 
                 showCartBtn.textContent = `Winkelwagen bekijken (${totalItems})`;
             }
-            
+
+            // Aantal aanpassen en verwijderen
+            cartItemsContainer.addEventListener("click", (e) => {
+                const button = e.target;
+                const sku = button.dataset.sku;
+                const item = cart.find(i => i.sku === sku);
+
+                if (!item) return;
+
+                if (button.classList.contains("decrease-btn")) {
+                    if (item.quantity > item.min_afname) {
+                        item.quantity--;
+                    } else if (item.quantity === item.min_afname && item.min_afname === 1) {
+                        // Verwijder item als het er nog maar 1 is en min_afname ook 1 is
+                        cart = cart.filter(i => i.sku !== sku);
+                    }
+                } else if (button.classList.contains("increase-btn")) {
+                    item.quantity++;
+                } else if (button.classList.contains("remove-btn")) {
+                    cart = cart.filter(i => i.sku !== sku);
+                }
+
+                updateCartDisplay();
+            });
+
             // Functie om de bestellingsbody te genereren
             function generateOrderBody() {
                 if (cart.length === 0) {
