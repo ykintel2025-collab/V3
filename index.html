@@ -44,6 +44,14 @@
             margin-top: 0;
         }
 
+        /* Nieuwe CSS om afbeeldingen correct weer te geven */
+        .product-item img {
+            max-width: 100%; /* Zorgt ervoor dat de afbeelding nooit breder is dan zijn container */
+            height: auto;    /* Behoudt de beeldverhouding */
+            display: block;  /* Verwijdert extra witruimte onder de afbeelding */
+            margin: 0 auto 10px auto; /* Centreert de afbeelding en geeft wat ruimte eronder */
+        }
+
         .product-price {
             font-weight: bold;
             color: #5cb85c;
