@@ -48,8 +48,9 @@
             font-size: 1.5em; /* Grotere titel */
         }
 
+        /* Aangepaste afbeeldingsgrootte voor mobiel */
         .product-item img {
-            max-width: 80%; /* Iets kleiner op mobiel */
+            max-width: 150px;
             height: auto;
             display: block;
             margin: 0 auto 10px auto;
@@ -62,6 +63,7 @@
             font-size: 1.2em; /* Grotere prijsweergave */
         }
         
+        /* Layout voor de hoeveelheid en knop */
         .product-actions {
             display: flex;
             flex-direction: column; /* Knoppen onder elkaar op mobiel */
@@ -70,10 +72,24 @@
             margin-top: 10px;
         }
 
-        .product-actions select {
-            width: 100%;
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
+        .quantity-controls button, .quantity-controls input {
+            padding: 5px;
+            width: 40px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .quantity-controls button {
+            background: #eee;
+            cursor: pointer;
+        }
+        
         .add-to-cart-btn {
             background-color: #5cb85c;
             color: #fff;
@@ -124,11 +140,16 @@
         }
 
         #cart-items li .quantity-controls button {
-            background: #ddd;
+            background: #eee;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 5px;
+        }
+
+        #cart-items li .quantity-controls button.remove-btn {
+            background-color: #dc3545; /* Rode achtergrond */
+            color: white;
         }
 
         #cart-items li:last-child {
@@ -235,21 +256,24 @@
                 naam: "Marstek Venus 2.0",
                 prijs: 1499,
                 img: "https://imgur.com/Zm6Wk6k.png",
-                min_afname: 1
+                min_afname: 1,
+                stap: 1
             },
             {
                 sku: "MSM",
                 naam: "Marstek Smart Meter",
                 prijs: 99,
                 img: "https://imgur.com/C1dYcK4.png",
-                min_afname: 1
+                min_afname: 1,
+                stap: 1
             },
             {
                 sku: "JS450",
                 naam: "Ja Solar 450",
                 prijs: 70,
                 img: "https://imgur.com/Uu3fkPI.png",
-                min_afname: 10
+                min_afname: 10,
+                stap: 5
             }
         ];
 
@@ -273,21 +297,16 @@
                 const productItem = document.createElement("div");
                 productItem.classList.add("product-item");
                 
-                // Creëer opties voor de hoeveelheidkiezer
-                let options = '';
-                const min = product.min_afname;
-                for (let i = min; i <= min + 20; i++) {
-                    options += `<option value="${i}">${i}</option>`;
-                }
-                
                 productItem.innerHTML = `
                     <img src="${product.img}" alt="${product.naam}">
                     <h3>${product.naam}</h3>
                     <div class="product-price">€ ${product.prijs}</div>
                     <div class="product-actions">
-                        <select class="quantity-select" data-sku="${product.sku}">
-                            ${options}
-                        </select>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn decrease-btn" data-sku="${product.sku}">-</button>
+                            <input type="number" class="quantity-input" value="${product.min_afname}" min="${product.min_afname}" data-sku="${product.sku}">
+                            <button class="quantity-btn increase-btn" data-sku="${product.sku}">+</button>
+                        </div>
                         <button class="add-to-cart-btn" data-sku="${product.sku}">Voeg toe aan winkelwagen</button>
                     </div>
                     <div class="product-notification" id="notif-${product.sku}"></div>
@@ -295,11 +314,33 @@
                 productCatalogus.appendChild(productItem);
             });
 
+            // Functionaliteit voor de plus- en minknoppen
+            document.querySelectorAll(".quantity-btn").forEach(button => {
+                button.addEventListener("click", (e) => {
+                    const sku = e.target.dataset.sku;
+                    const input = document.querySelector(`.quantity-input[data-sku="${sku}"]`);
+                    let quantity = parseInt(input.value);
+                    const product = producten.find(p => p.sku === sku);
+
+                    if (e.target.classList.contains("increase-btn")) {
+                        quantity += product.stap;
+                    } else if (e.target.classList.contains("decrease-btn")) {
+                        quantity -= product.stap;
+                    }
+                    
+                    if (quantity >= product.min_afname) {
+                        input.value = quantity;
+                    } else {
+                        input.value = product.min_afname;
+                    }
+                });
+            });
+
             // Voeg toe aan winkelwagen knop functionaliteit
             document.querySelectorAll(".add-to-cart-btn").forEach(button => {
                 button.addEventListener("click", (e) => {
                     const sku = e.target.dataset.sku;
-                    const quantity = parseInt(document.querySelector(`.quantity-select[data-sku="${sku}"]`).value);
+                    const quantity = parseInt(document.querySelector(`.quantity-input[data-sku="${sku}"]`).value);
 
                     const product = producten.find(p => p.sku === sku);
                     const existingItem = cart.find(item => item.sku === sku);
@@ -344,7 +385,7 @@
                         <div class="quantity-controls">
                             <button class="decrease-btn" data-sku="${item.sku}">-</button>
                             <button class="increase-btn" data-sku="${item.sku}">+</button>
-                            <button class="remove-btn" data-sku="${item.sku}">Verwijder</button>
+                            <button class="remove-btn" data-sku="${item.sku}">🗑️</button>
                         </div>
                     `;
                     cartItemsContainer.appendChild(listItem);
@@ -370,12 +411,13 @@
 
                 if (button.classList.contains("decrease-btn")) {
                     if (item.quantity > item.min_afname) {
-                        item.quantity--;
+                        item.quantity -= item.stap;
+                        if (item.quantity < item.min_afname) item.quantity = item.min_afname;
                     } else if (item.quantity === item.min_afname && item.min_afname === 1) {
-                        cart = cart.filter(i => i.sku !== sku);
+                         cart = cart.filter(i => i.sku !== sku);
                     }
                 } else if (button.classList.contains("increase-btn")) {
-                    item.quantity++;
+                    item.quantity += item.stap;
                 } else if (button.classList.contains("remove-btn")) {
                     cart = cart.filter(i => i.sku !== sku);
                 }
