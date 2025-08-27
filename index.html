@@ -87,7 +87,6 @@
             gap: 15px;
         }
 
-        /* Vergrote knoppen voor plus en min */
         .quantity-controls button, .quantity-controls input {
             padding: 20px;
             width: 80px;
@@ -448,7 +447,7 @@
             });
 
             // Functie om de bestellingsbody te genereren
-            function generateOrderBody() {
+            function generateOrderBody(platform) {
                 if (cart.length === 0) {
                     return null;
                 }
@@ -462,10 +461,17 @@
                 const tax = subtotal * BTW_TARIEF;
                 const total = subtotal + tax;
                 
-                orderBody += `\nSubtotaal (excl. BTW): €${subtotal.toFixed(2)}`;
-                orderBody += `\nBTW (21%): €${tax.toFixed(2)}`;
-                orderBody += `\nTotale kosten (incl. BTW): €${total.toFixed(2)}`;
-
+                if (platform === 'whatsapp') {
+                    orderBody += "\nOverzicht van de kosten:\n";
+                    orderBody += `Subtotaal (excl. BTW): €${subtotal.toFixed(2)}\n`;
+                    orderBody += `BTW (21%): €${tax.toFixed(2)}\n`;
+                    orderBody += `Totale kosten (incl. BTW): €${total.toFixed(2)}`;
+                } else { // Voor e-mail
+                    orderBody += `\nSubtotaal (excl. BTW): €${subtotal.toFixed(2)}\n`;
+                    orderBody += `BTW (21%): €${tax.toFixed(2)}\n`;
+                    orderBody += `Totale kosten (incl. BTW): €${total.toFixed(2)}`;
+                }
+                
                 return orderBody;
             }
 
@@ -478,7 +484,7 @@
 
             // Checkout knop functionaliteit (mail)
             checkoutMailBtn.addEventListener("click", () => {
-                const orderBody = generateOrderBody();
+                const orderBody = generateOrderBody('mail');
                 if (!orderBody) {
                     alert("Je winkelwagen is leeg.");
                     return;
@@ -494,7 +500,7 @@
             
             // Checkout knop functionaliteit (whatsapp)
             checkoutWhatsappBtn.addEventListener("click", () => {
-                const orderBody = generateOrderBody();
+                const orderBody = generateOrderBody('whatsapp');
                 if (!orderBody) {
                     alert("Je winkelwagen is leeg.");
                     return;
