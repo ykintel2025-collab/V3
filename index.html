@@ -18,79 +18,81 @@
         header {
             background: #333;
             color: #fff;
-            padding: 12.5px 0; /* 25% groter */
+            padding: 15px 0;
             text-align: center;
         }
 
         header h1 {
-            font-size: 1.5em; /* 50% groter dan 1em */
+            font-size: 2em; /* Grotere titel */
         }
 
         main {
-            max-width: 1000px; /* 25% groter */
+            max-width: 800px;
             margin: auto;
             background: #fff;
-            padding: 25px; /* 25% groter */
-            box-shadow: 0 0 12.5px rgba(0,0,0,0.1); /* 25% groter */
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
 
         #product-catalogus {
             display: flex;
             flex-direction: column;
-            gap: 25px; /* 25% groter */
-            margin-bottom: 50px; /* 25% groter */
+            gap: 25px;
+            margin-bottom: 50px;
         }
 
         .product-item {
-            border: 1.25px solid #ddd; /* 25% groter */
-            padding: 18.75px; /* 25% groter */
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            border: 1px solid #ddd;
+            padding: 20px;
+            display: flex; /* Flexbox voor de nieuwe lay-out */
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        /* 50/50 verdeling op mobiel */
+        .product-item img {
+            max-width: 50%;
+            height: auto;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .product-item-content {
+            flex-grow: 1; /* Neemt de overgebleven ruimte in */
         }
 
         .product-item h3 {
             margin-top: 0;
-            font-size: 2.25em; /* 50% groter */
-        }
-
-        /* Aangepaste afbeeldingsgrootte voor mobiel */
-        .product-item img {
-            max-width: 187.5px; /* 25% groter */
-            height: auto;
-            display: block;
-            margin: 0 auto 12.5px auto; /* 25% groter */
+            font-size: 1.8em; /* Grotere titel */
         }
 
         .product-price {
             font-weight: bold;
             color: #5cb85c;
-            margin-top: 12.5px; /* 25% groter */
-            font-size: 1.8em; /* 50% groter */
+            margin-top: 10px;
+            font-size: 1.5em; /* Grotere prijsweergave */
         }
         
-        /* Layout voor de hoeveelheid en knop */
         .product-actions {
             display: flex;
-            flex-direction: column; /* Knoppen onder elkaar op mobiel */
-            align-items: center;
-            gap: 12.5px; /* 25% groter */
-            margin-top: 12.5px; /* 25% groter */
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .quantity-controls {
             display: flex;
             align-items: center;
-            gap: 6.25px; /* 25% groter */
+            gap: 10px;
         }
 
         .quantity-controls button, .quantity-controls input {
-            padding: 6.25px; /* 25% groter */
-            width: 50px; /* 25% groter */
+            padding: 10px;
+            width: 50px;
             text-align: center;
-            border: 1.25px solid #ddd; /* 25% groter */
-            font-size: 1.2em; /* 50% groter */
+            border: 1px solid #ddd;
+            font-size: 1.2em;
         }
 
         .quantity-controls button {
@@ -102,7 +104,7 @@
             background-color: #5cb85c;
             color: #fff;
             border: none;
-            padding: 12.5px; /* 25% groter */
+            padding: 15px;
             cursor: pointer;
             width: 100%;
         }
@@ -113,16 +115,16 @@
 
         .product-notification {
             display: none;
-            margin-top: 6.25px; /* 25% groter */
+            margin-top: 10px;
             color: #3c763d;
-            font-size: 1.35em; /* 50% groter */
+            font-size: 1.2em;
         }
 
         #cart-section {
             display: none;
-            margin-top: 25px; /* 25% groter */
-            padding: 25px; /* 25% groter */
-            border: 1.25px solid #ccc; /* 25% groter */
+            margin-top: 30px;
+            padding: 30px;
+            border: 1px solid #ccc;
         }
 
         #cart-items {
@@ -131,32 +133,32 @@
         }
         
         #cart-items li {
-            padding: 10px 0; /* 25% groter */
-            border-bottom: 1.25px dashed #ddd; /* 25% groter */
+            padding: 12px 0;
+            border-bottom: 1px dashed #ddd;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            font-size: 1.65em; /* 50% groter */
+            font-size: 1.4em;
         }
 
         #cart-items li .quantity-controls {
             display: flex;
             align-items: center;
-            gap: 6.25px; /* 25% groter */
-            margin-top: 6.25px; /* 25% groter */
+            gap: 8px;
+            margin-top: 8px;
         }
 
         #cart-items li .quantity-controls button {
             background: #eee;
             border: none;
-            padding: 6.25px 12.5px; /* 25% groter */
+            padding: 8px 16px;
             cursor: pointer;
-            border-radius: 6.25px; /* 25% groter */
+            border-radius: 8px;
         }
 
         #cart-items li .quantity-controls button.remove-btn {
-            background-color: #dc3545; /* Rode achtergrond */
+            background-color: #dc3545;
             color: white;
         }
 
@@ -165,34 +167,34 @@
         }
         
         #cart-totals {
-            margin-top: 18.75px; /* 25% groter */
-            border-top: 1.25px solid #ccc; /* 25% groter */
-            padding-top: 12.5px; /* 25% groter */
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
             text-align: right;
-            font-size: 1.65em; /* 50% groter */
+            font-size: 1.4em;
         }
         
         #cart-totals div {
-            padding: 5px 0; /* 25% groter */
+            padding: 6px 0;
         }
 
         #checkout-btn-mail {
             background-color: #007bff;
             color: #fff;
             border: none;
-            padding: 12.5px 25px; /* 25% groter */
+            padding: 15px 30px;
             cursor: pointer;
-            margin-top: 18.75px; /* 25% groter */
-            margin-right: 12.5px; /* 25% groter */
+            margin-top: 20px;
+            margin-right: 15px;
         }
         
         #checkout-btn-whatsapp {
             background-color: #25D366;
             color: #fff;
             border: none;
-            padding: 12.5px 25px; /* 25% groter */
+            padding: 15px 30px;
             cursor: pointer;
-            margin-top: 18.75px; /* 25% groter */
+            margin-top: 20px;
         }
         
         #checkout-btn-mail:hover {
@@ -207,23 +209,23 @@
             background-color: #5cb85c;
             color: #fff;
             border: none;
-            padding: 12.5px; /* 25% groter */
+            padding: 15px;
             cursor: pointer;
-            margin-top: 12.5px; /* 25% groter */
+            margin-top: 15px;
         }
 
         #confirmation-message {
             display: none;
             background-color: #dff0d8;
             color: #3c763d;
-            padding: 18.75px; /* 25% groter */
-            border: 1.25px solid #d6e9c6; /* 25% groter */
-            margin-top: 25px; /* 25% groter */
+            padding: 20px;
+            border: 1px solid #d6e9c6;
+            margin-top: 30px;
             text-align: center;
         }
 
         #confirmation-message h2 {
-            font-size: 2.25em; /* 50% groter */
+            font-size: 2.2em;
         }
     </style>
 </head>
@@ -311,17 +313,19 @@
                 
                 productItem.innerHTML = `
                     <img src="${product.img}" alt="${product.naam}">
-                    <h3>${product.naam}</h3>
-                    <div class="product-price">€ ${product.prijs}</div>
-                    <div class="product-actions">
-                        <div class="quantity-controls">
-                            <button class="quantity-btn decrease-btn" data-sku="${product.sku}">-</button>
-                            <input type="number" class="quantity-input" value="${product.min_afname}" min="${product.min_afname}" data-sku="${product.sku}">
-                            <button class="quantity-btn increase-btn" data-sku="${product.sku}">+</button>
+                    <div class="product-item-content">
+                        <h3>${product.naam}</h3>
+                        <div class="product-price">€ ${product.prijs}</div>
+                        <div class="product-actions">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn decrease-btn" data-sku="${product.sku}">-</button>
+                                <input type="number" class="quantity-input" value="${product.min_afname}" min="${product.min_afname}" data-sku="${product.sku}">
+                                <button class="quantity-btn increase-btn" data-sku="${product.sku}">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-sku="${product.sku}">Voeg toe aan winkelwagen</button>
                         </div>
-                        <button class="add-to-cart-btn" data-sku="${product.sku}">Voeg toe aan winkelwagen</button>
+                        <div class="product-notification" id="notif-${product.sku}"></div>
                     </div>
-                    <div class="product-notification" id="notif-${product.sku}"></div>
                 `;
                 productCatalogus.appendChild(productItem);
             });
