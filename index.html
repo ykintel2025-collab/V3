@@ -454,23 +454,17 @@
             
                 let orderBody = "Nieuwe bestelling:\n\n";
                 cart.forEach(item => {
-                    orderBody += `- ${item.quantity} x ${item.naam} (SKU: ${item.sku}) à €${item.prijs}\n`;
+                    orderBody += `- ${item.quantity} x ${item.naam} (SKU: ${item.sku})\n`;
                 });
                 
                 const subtotal = cart.reduce((sum, item) => sum + item.prijs * item.quantity, 0);
                 const tax = subtotal * BTW_TARIEF;
                 const total = subtotal + tax;
                 
-                if (platform === 'whatsapp') {
-                    orderBody += "\nOverzicht van de kosten:\n";
-                    orderBody += `Subtotaal (excl. BTW): €${subtotal.toFixed(2)}\n`;
-                    orderBody += `BTW (21%): €${tax.toFixed(2)}\n`;
-                    orderBody += `Totale kosten (incl. BTW): €${total.toFixed(2)}`;
-                } else { // Voor e-mail
-                    orderBody += `\nSubtotaal (excl. BTW): €${subtotal.toFixed(2)}\n`;
-                    orderBody += `BTW (21%): €${tax.toFixed(2)}\n`;
-                    orderBody += `Totale kosten (incl. BTW): €${total.toFixed(2)}`;
-                }
+                orderBody += `\nOverzicht van de kosten:\n`;
+                orderBody += `\nSubtotaal (excl. BTW): €${subtotal.toFixed(2)}`;
+                orderBody += `\nBTW (21%): €${tax.toFixed(2)}`;
+                orderBody += `\nTotale kosten (incl. BTW): €${total.toFixed(2)}`;
                 
                 return orderBody;
             }
