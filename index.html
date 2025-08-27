@@ -64,10 +64,14 @@
         
         .product-actions {
             display: flex;
+            flex-direction: column; /* Knoppen onder elkaar op mobiel */
             align-items: center;
-            justify-content: center;
             gap: 10px;
             margin-top: 10px;
+        }
+
+        .product-actions select {
+            width: 100%;
         }
 
         .add-to-cart-btn {
@@ -76,10 +80,18 @@
             border: none;
             padding: 10px;
             cursor: pointer;
+            width: 100%;
         }
 
         .add-to-cart-btn:hover {
             background-color: #4cae4c;
+        }
+
+        .product-notification {
+            display: none;
+            margin-top: 5px;
+            color: #3c763d;
+            font-size: 0.9em;
         }
 
         #cart-section {
@@ -100,8 +112,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap; /* Zorgt ervoor dat elementen naar de volgende regel gaan indien nodig */
-            font-size: 1.1em; /* Grotere tekst in de winkelwagen */
+            flex-wrap: wrap;
+            font-size: 1.1em;
         }
 
         #cart-items li .quantity-controls {
@@ -128,7 +140,7 @@
             border-top: 1px solid #ccc;
             padding-top: 10px;
             text-align: right;
-            font-size: 1.1em; /* Grotere tekst voor totalen */
+            font-size: 1.1em;
         }
         
         #cart-totals div {
@@ -171,19 +183,6 @@
             margin-top: 10px;
         }
 
-        #notification-message {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            z-index: 1000;
-        }
-
         #confirmation-message {
             display: none;
             background-color: #dff0d8;
@@ -220,8 +219,6 @@
             
             <button id="show-cart-btn">Winkelwagen bekijken (0)</button>
         </section>
-        
-        <div id="notification-message"></div>
 
         <section id="confirmation-message">
             <h2>Bestelling verstuurd!</h2>
@@ -270,7 +267,6 @@
             const subtotalEl = document.getElementById("subtotal");
             const taxEl = document.getElementById("tax");
             const totalEl = document.getElementById("total");
-            const notificationEl = document.getElementById("notification-message");
 
             // Producten in de catalogus laden
             producten.forEach(product => {
@@ -294,6 +290,7 @@
                         </select>
                         <button class="add-to-cart-btn" data-sku="${product.sku}">Voeg toe aan winkelwagen</button>
                     </div>
+                    <div class="product-notification" id="notif-${product.sku}"></div>
                 `;
                 productCatalogus.appendChild(productItem);
             });
@@ -312,13 +309,14 @@
                     } else {
                         cart.push({ ...product, quantity: quantity });
                     }
-                    showNotification(`${quantity}x ${product.naam} toegevoegd!`);
+                    showNotification(sku, `${quantity}x ${product.naam} toegevoegd!`);
                     updateCartDisplay();
                 });
             });
 
             // Toon melding bij toevoegen aan winkelwagen
-            function showNotification(message) {
+            function showNotification(sku, message) {
+                const notificationEl = document.getElementById(`notif-${sku}`);
                 notificationEl.textContent = message;
                 notificationEl.style.display = "block";
                 setTimeout(() => {
@@ -374,7 +372,6 @@
                     if (item.quantity > item.min_afname) {
                         item.quantity--;
                     } else if (item.quantity === item.min_afname && item.min_afname === 1) {
-                        // Verwijder item als het er nog maar 1 is en min_afname ook 1 is
                         cart = cart.filter(i => i.sku !== sku);
                     }
                 } else if (button.classList.contains("increase-btn")) {
@@ -408,6 +405,13 @@
                 return orderBody;
             }
 
+            // Verberg alle meldingen na het versturen van de bestelling
+            function hideAllNotifications() {
+                document.querySelectorAll('.product-notification').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
+
             // Checkout knop functionaliteit (mail)
             checkoutMailBtn.addEventListener("click", () => {
                 const orderBody = generateOrderBody();
@@ -418,6 +422,7 @@
 
                 cartSection.style.display = "none";
                 confirmationMessage.style.display = "block";
+                hideAllNotifications();
                 
                 const mailtoLink = `mailto:info@exclugarden.nl?subject=Nieuwe%20interne%20bestelling&body=${encodeURIComponent(orderBody)}`;
                 window.location.href = mailtoLink;
@@ -431,6 +436,7 @@
                     return;
                 }
                 
+                hideAllNotifications();
                 const whatsappLink = `https://wa.me/?text=${encodeURIComponent(orderBody)}`;
                 window.open(whatsappLink, '_blank');
             });
