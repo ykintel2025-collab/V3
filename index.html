@@ -60,7 +60,6 @@
             margin-top: 10px;
         }
 
-        /* Klasse voor de knoppen van de producten */
         .add-to-cart-btn {
             background-color: #5cb85c;
             color: #fff;
@@ -75,7 +74,7 @@
         }
 
         #cart-section {
-            display: none; /* Standaard verborgen */
+            display: none;
             margin-top: 20px;
             padding: 20px;
             border: 1px solid #ccc;
@@ -95,20 +94,33 @@
             border-bottom: none;
         }
 
-        #checkout-btn {
+        #checkout-btn-mail {
             background-color: #007bff;
             color: #fff;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
             margin-top: 15px;
+            margin-right: 10px;
         }
-
-        #checkout-btn:hover {
+        
+        #checkout-btn-whatsapp {
+            background-color: #25D366;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        #checkout-btn-mail:hover {
             background-color: #0056b3;
         }
+        
+        #checkout-btn-whatsapp:hover {
+            background-color: #128C7E;
+        }
 
-        /* Klasse voor de algemene 'Winkelwagen bekijken' knop */
         #show-cart-btn {
             background-color: #5cb85c;
             color: #fff;
@@ -116,6 +128,16 @@
             padding: 10px;
             cursor: pointer;
             margin-top: 10px;
+        }
+
+        #confirmation-message {
+            display: none;
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 15px;
+            border: 1px solid #d6e9c6;
+            margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
@@ -133,10 +155,17 @@
             <h2>Winkelwagen</h2>
             <div id="cart-section">
                 <ul id="cart-items"></ul>
-                <button id="checkout-btn">Bestelling versturen via mail</button>
+                <button id="checkout-btn-mail">Bestelling versturen via mail</button>
+                <button id="checkout-btn-whatsapp">Bestelling versturen via WhatsApp</button>
             </div>
             
             <button id="show-cart-btn">Winkelwagen bekijken (0)</button>
+        </section>
+
+        <section id="confirmation-message">
+            <h2>Bestelling verstuurd!</h2>
+            <p>De e-mail met je bestelling is opgesteld. Controleer je e-mailprogramma om de bestelling te versturen.</p>
+            <p>Bedankt voor je bestelling!</p>
         </section>
 
     </main>
@@ -173,7 +202,9 @@
             const cartItemsContainer = document.getElementById("cart-items");
             const cartSection = document.getElementById("cart-section");
             const showCartBtn = document.getElementById("show-cart-btn");
-            const checkoutBtn = document.getElementById("checkout-btn");
+            const checkoutMailBtn = document.getElementById("checkout-btn-mail");
+            const checkoutWhatsappBtn = document.getElementById("checkout-btn-whatsapp");
+            const confirmationMessage = document.getElementById("confirmation-message");
 
             // Producten in de catalogus laden
             producten.forEach(product => {
@@ -221,14 +252,13 @@
                 });
                 showCartBtn.textContent = `Winkelwagen bekijken (${totalItems})`;
             }
-
-            // Checkout knop functionaliteit (mail)
-            checkoutBtn.addEventListener("click", () => {
+            
+            // Functie om de bestellingsbody te genereren
+            function generateOrderBody() {
                 if (cart.length === 0) {
-                    alert("Je winkelwagen is leeg.");
-                    return;
+                    return null;
                 }
-
+            
                 let orderBody = "Nieuwe bestelling:\n\n";
                 cart.forEach(item => {
                     orderBody += `- ${item.quantity} x ${item.naam} (SKU: ${item.sku}) à €${item.prijs}\n`;
@@ -236,9 +266,35 @@
                 
                 const total = cart.reduce((sum, item) => sum + item.prijs * item.quantity, 0);
                 orderBody += `\nTotale kosten: €${total}`;
+                return orderBody;
+            }
 
+            // Checkout knop functionaliteit (mail)
+            checkoutMailBtn.addEventListener("click", () => {
+                const orderBody = generateOrderBody();
+                if (!orderBody) {
+                    alert("Je winkelwagen is leeg.");
+                    return;
+                }
+
+                cartSection.style.display = "none";
+                confirmationMessage.style.display = "block";
+                
                 const mailtoLink = `mailto:info@exclugarden.nl?subject=Nieuwe%20interne%20bestelling&body=${encodeURIComponent(orderBody)}`;
                 window.location.href = mailtoLink;
+            });
+            
+            // Checkout knop functionaliteit (whatsapp)
+            checkoutWhatsappBtn.addEventListener("click", () => {
+                const orderBody = generateOrderBody();
+                if (!orderBody) {
+                    alert("Je winkelwagen is leeg.");
+                    return;
+                }
+                
+                // Opent WhatsApp met een vooraf ingevuld bericht
+                const whatsappLink = `https://wa.me/?text=${encodeURIComponent(orderBody)}`;
+                window.open(whatsappLink, '_blank');
             });
         });
     </script>
