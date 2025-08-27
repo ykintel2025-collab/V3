@@ -38,18 +38,20 @@
             border: 1px solid #ddd;
             padding: 15px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .product-item h3 {
             margin-top: 0;
         }
 
-        /* Nieuwe CSS om afbeeldingen correct weer te geven */
         .product-item img {
-            max-width: 100%; /* Zorgt ervoor dat de afbeelding nooit breder is dan zijn container */
-            height: auto;    /* Behoudt de beeldverhouding */
-            display: block;  /* Verwijdert extra witruimte onder de afbeelding */
-            margin: 0 auto 10px auto; /* Centreert de afbeelding en geeft wat ruimte eronder */
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px auto;
         }
 
         .product-price {
@@ -58,41 +60,51 @@
             margin-top: 10px;
         }
 
-        #bestel-sectie {
-            border-top: 2px solid #ccc;
-            padding-top: 20px;
-        }
-
-        form label, form input, form select, form button {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        form input, form select {
-            padding: 8px;
-            border: 1px solid #ccc;
-        }
-
-        form button {
-            background: #5cb85c;
+        .add-to-cart-btn {
+            background-color: #5cb85c;
             color: #fff;
             border: none;
             padding: 10px;
             cursor: pointer;
+            margin-top: 10px;
         }
 
-        form button:hover {
-            background: #4cae4c;
+        .add-to-cart-btn:hover {
+            background-color: #4cae4c;
         }
 
-        #bestelling-bevestiging {
-            background-color: #dff0d8;
-            color: #3c763d;
-            padding: 15px;
-            border: 1px solid #d6e9c6;
+        #cart-section {
+            display: none; /* Standaard verborgen */
             margin-top: 20px;
-            text-align: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        #cart-items {
+            list-style: none;
+            padding: 0;
+        }
+        
+        #cart-items li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        #cart-items li:last-child {
+            border-bottom: none;
+        }
+
+        #checkout-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        #checkout-btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -104,29 +116,18 @@
 
     <main>
         <div id="product-catalogus">
-            </div>
+        </div>
 
         <section id="bestel-sectie">
-            <h2>Plaats je bestelling</h2>
-            <form id="bestel-formulier">
-                <label for="naam">Je naam:</label>
-                <input type="text" id="naam" required>
-
-                <label for="product-select">Kies een product:</label>
-                <select id="product-select" required></select>
-
-                <label for="aantal">Aantal:</label>
-                <input type="number" id="aantal" min="1" value="1" required>
-
-                <button type="submit">Bestel</button>
-            </form>
+            <h2>Winkelwagen</h2>
+            <div id="cart-section">
+                <ul id="cart-items"></ul>
+                <button id="checkout-btn">Bestelling versturen via mail</button>
+            </div>
+            
+            <button id="show-cart-btn" class="add-to-cart-btn">Winkelwagen bekijken (0)</button>
         </section>
 
-        <section id="bestelling-bevestiging" style="display:none;">
-            <h2>Bedankt voor je bestelling!</h2>
-            <p>Je hebt **<span id="besteld-aantal"></span>** van **<span id="besteld-product"></span>** besteld.</p>
-            <p>We verwerken je aanvraag zo snel mogelijk.</p>
-        </section>
     </main>
 
     <script>
@@ -154,13 +155,14 @@
             }
         ];
 
+        let cart = [];
+
         document.addEventListener("DOMContentLoaded", () => {
             const productCatalogus = document.getElementById("product-catalogus");
-            const productSelect = document.getElementById("product-select");
-            const bestelFormulier = document.getElementById("bestel-formulier");
-            const bestellingBevestiging = document.getElementById("bestelling-bevestiging");
-            const besteldAantal = document.getElementById("besteld-aantal");
-            const besteldProduct = document.getElementById("besteld-product");
+            const cartItemsContainer = document.getElementById("cart-items");
+            const cartSection = document.getElementById("cart-section");
+            const showCartBtn = document.getElementById("show-cart-btn");
+            const checkoutBtn = document.getElementById("checkout-btn");
 
             // Producten in de catalogus laden
             producten.forEach(product => {
@@ -171,32 +173,61 @@
                     <h3>${product.naam}</h3>
                     <p>${product.beschrijving}</p>
                     <div class="product-price">€ ${product.prijs}</div>
+                    <button class="add-to-cart-btn" data-sku="${product.sku}">Voeg toe aan winkelwagen</button>
                 `;
                 productCatalogus.appendChild(productItem);
-
-                const option = document.createElement("option");
-                option.value = product.sku;
-                option.textContent = product.naam;
-                productSelect.appendChild(option);
             });
 
-            // Verwerk het bestelformulier
-            bestelFormulier.addEventListener("submit", (e) => {
-                e.preventDefault();
+            // Voeg toe aan winkelwagen knop functionaliteit
+            document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+                button.addEventListener("click", (e) => {
+                    const sku = e.target.dataset.sku;
+                    const product = producten.find(p => p.sku === sku);
+                    const existingItem = cart.find(item => item.sku === sku);
 
-                const naam = document.getElementById("naam").value;
-                const selectedSku = productSelect.value;
-                const aantal = document.getElementById("aantal").value;
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        cart.push({ ...product, quantity: 1 });
+                    }
+                    updateCartDisplay();
+                });
+            });
 
-                const besteldProductNaam = producten.find(p => p.sku === selectedSku).naam;
+            // Winkelwagen bekijken knop
+            showCartBtn.addEventListener("click", () => {
+                cartSection.style.display = cartSection.style.display === "block" ? "none" : "block";
+            });
 
-                besteldAantal.textContent = aantal;
-                besteldProduct.textContent = besteldProductNaam;
+            function updateCartDisplay() {
+                cartItemsContainer.innerHTML = '';
+                let totalItems = 0;
+                cart.forEach(item => {
+                    totalItems += item.quantity;
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${item.quantity} x ${item.naam} (€${item.prijs * item.quantity})`;
+                    cartItemsContainer.appendChild(listItem);
+                });
+                showCartBtn.textContent = `Winkelwagen bekijken (${totalItems})`;
+            }
 
-                bestellingBevestiging.style.display = "block";
-                bestelFormulier.style.display = "none";
+            // Checkout knop functionaliteit (mail)
+            checkoutBtn.addEventListener("click", () => {
+                if (cart.length === 0) {
+                    alert("Je winkelwagen is leeg.");
+                    return;
+                }
 
-                console.log(`Nieuwe bestelling van ${naam}: ${aantal} x ${besteldProductNaam}`);
+                let orderBody = "Nieuwe bestelling:\n\n";
+                cart.forEach(item => {
+                    orderBody += `- ${item.quantity} x ${item.naam} (SKU: ${item.sku}) à €${item.prijs}\n`;
+                });
+                
+                const total = cart.reduce((sum, item) => sum + item.prijs * item.quantity, 0);
+                orderBody += `\nTotale kosten: €${total}`;
+
+                const mailtoLink = `mailto:info@exclugarden.nl?subject=Nieuwe%20interne%20bestelling&body=${encodeURIComponent(orderBody)}`;
+                window.location.href = mailtoLink;
             });
         });
     </script>
